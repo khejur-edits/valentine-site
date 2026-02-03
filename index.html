@@ -3,71 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>💖</title>
 
-<style>
-  * { box-sizing: border-box; }
-
-  body {
-    height: 100vh;
-    margin: 0;
-    background: linear-gradient(135deg, #ffd1e8, #fff0f7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont;
-  }
-
-  .card {
-    background: white;
-    width: 90%;
-    max-width: 360px;
-    padding: 32px 20px;
-    border-radius: 22px;
-    text-align: center;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.15);
-  }
-
-  h2 {
-    font-size: 22px;
-    margin-bottom: 32px;
-    color: #333;
-  }
-
-  .buttons {
-    position: relative;
-    height: 90px;
-  }
-
-  button {
-    position: absolute;
-    top: 24px;
-    padding: 12px 28px;
-    border: none;
-    border-radius: 999px;
-    font-size: 16px;
-    touch-action: manipulation;
-    user-select: none;
-    transform: none !important; /* HARD stop resize */
-  }
-
-  #yes {
-    left: 40px;
-    background: #ff4f9a;
-    color: white;
-    z-index: 2;
-  }
-
-  #no {
-    left: 200px; /* start far from YES */
-    background: #e0e0e0;
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -86,34 +24,63 @@
   const yesBtn = document.getElementById("yes");
   const zone = document.getElementById("zone");
 
-  // YES button safe zone (absolute, never enter)
-  const YES_LEFT = 40;
-  const YES_WIDTH = 90;
-  const GAP = 20;
+  const sounds = [
+    "s1.mp4",
+    "s2.mp4",
+    "s3.mp4",
+    "s4.mp4",
+    "s5.mp4"
+  ];
 
-  let side = "right";
-
-  function moveNo() {
-    const zoneWidth = zone.clientWidth;
-    const noWidth = noBtn.offsetWidth;
-
-    // Calculate safe ranges
-    const leftLimit = YES_LEFT + YES_WIDTH + GAP;
-    const rightLimit = zoneWidth - noWidth;
-
-    let x;
-    if (side === "right") {
-      x = leftLimit;
-      side = "left";
-    } else {
-      x = rightLimit;
-      side = "right";
-    }
-
-    noBtn.style.left = x + "px";
+  function playRandomSound() {
+    const audio = new Audio(
+      sounds[Math.floor(Math.random() * sounds.length)]
+    );
+    audio.volume = 0.8;
+    audio.play();
   }
 
-  // Mobile + Desktop (stable)
+  function getSafePosition() {
+    const zoneRect = zone.getBoundingClientRect();
+    const yesRect  = yesBtn.getBoundingClientRect();
+    const noRect   = noBtn.getBoundingClientRect();
+
+    let x, y;
+    let safe = false;
+
+    while (!safe) {
+      x = Math.random() * (zoneRect.width  - noRect.width);
+      y = Math.random() * (zoneRect.height - noRect.height);
+
+      const futureNo = {
+        left: zoneRect.left + x,
+        right: zoneRect.left + x + noRect.width,
+        top: zoneRect.top + y,
+        bottom: zoneRect.top + y + noRect.height
+      };
+
+      // Check overlap with YES
+      safe = !(
+        futureNo.right  > yesRect.left &&
+        futureNo.left   < yesRect.right &&
+        futureNo.bottom > yesRect.top &&
+        futureNo.top    < yesRect.bottom
+      );
+    }
+
+    return { x, y };
+  }
+
+  function moveNo() {
+    const pos = getSafePosition();
+
+    noBtn.classList.add("move");
+    noBtn.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+
+    playRandomSound();
+  }
+
+  // Mobile + Desktop
   noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     moveNo();
