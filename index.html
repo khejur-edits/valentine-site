@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>💖</title>
 
 <style>
@@ -16,7 +21,6 @@
     justify-content: center;
     align-items: center;
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
-    overflow: hidden;
   }
 
   .card {
@@ -42,22 +46,25 @@
 
   button {
     position: absolute;
+    top: 24px;
     padding: 12px 28px;
     border: none;
     border-radius: 999px;
     font-size: 16px;
-    transition: transform 0.15s ease;
     touch-action: manipulation;
+    user-select: none;
+    transform: none !important; /* HARD stop resize */
   }
 
   #yes {
     left: 40px;
     background: #ff4f9a;
     color: white;
+    z-index: 2;
   }
 
   #no {
-    right: 40px;
+    left: 200px; /* start far from YES */
     background: #e0e0e0;
   }
 </style>
@@ -68,7 +75,7 @@
 <div class="card">
   <h2>will you be my valentine</h2>
 
-  <div class="buttons">
+  <div class="buttons" id="zone">
     <button id="yes">Yes</button>
     <button id="no">No</button>
   </div>
@@ -77,44 +84,41 @@
 <script>
   const noBtn = document.getElementById("no");
   const yesBtn = document.getElementById("yes");
-  const container = document.querySelector(".buttons");
+  const zone = document.getElementById("zone");
 
-  let cooldown = false;
+  // YES button safe zone (absolute, never enter)
+  const YES_LEFT = 40;
+  const YES_WIDTH = 90;
+  const GAP = 20;
+
+  let side = "right";
 
   function moveNo() {
-    if (cooldown) return;
-    cooldown = true;
+    const zoneWidth = zone.clientWidth;
+    const noWidth = noBtn.offsetWidth;
 
-    const maxX = container.clientWidth - noBtn.offsetWidth;
-    const maxY = container.clientHeight - noBtn.offsetHeight;
+    // Calculate safe ranges
+    const leftLimit = YES_LEFT + YES_WIDTH + GAP;
+    const rightLimit = zoneWidth - noWidth;
 
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
+    let x;
+    if (side === "right") {
+      x = leftLimit;
+      side = "left";
+    } else {
+      x = rightLimit;
+      side = "right";
+    }
 
     noBtn.style.left = x + "px";
-    noBtn.style.top  = y + "px";
-
-    setTimeout(() => cooldown = false, 250);
   }
 
-  // Mobile: ONLY when No is touched
-  noBtn.addEventListener("touchstart", (e) => {
+  // Mobile + Desktop (stable)
+  noBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     moveNo();
   });
 
-  // Desktop: when cursor gets close
-  document.addEventListener("mousemove", (e) => {
-    const r = noBtn.getBoundingClientRect();
-    const dx = e.clientX - (r.left + r.width / 2);
-    const dy = e.clientY - (r.top + r.height / 2);
-
-    if (Math.sqrt(dx * dx + dy * dy) < 90) {
-      moveNo();
-    }
-  });
-
-  // Yes always wins 😈
   yesBtn.addEventListener("click", () => {
     window.location.href = "yay.html";
   });
