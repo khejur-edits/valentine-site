@@ -46,7 +46,8 @@
     border: none;
     border-radius: 999px;
     font-size: 16px;
-    transition: 0.15s ease;
+    transition: transform 0.15s ease;
+    touch-action: manipulation;
   }
 
   #yes {
@@ -75,36 +76,48 @@
 
 <script>
   const noBtn = document.getElementById("no");
+  const yesBtn = document.getElementById("yes");
   const container = document.querySelector(".buttons");
 
+  let cooldown = false;
+
   function moveNo() {
+    if (cooldown) return;
+    cooldown = true;
+
     const maxX = container.clientWidth - noBtn.offsetWidth;
     const maxY = container.clientHeight - noBtn.offsetHeight;
 
-    noBtn.style.left = Math.random() * maxX + "px";
-    noBtn.style.top  = Math.random() * maxY + "px";
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top  = y + "px";
+
+    setTimeout(() => cooldown = false, 250);
   }
 
-  // Mobile
-  document.addEventListener("touchstart", moveNo);
-  document.addEventListener("touchmove", moveNo);
+  // Mobile: ONLY when No is touched
+  noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveNo();
+  });
 
-  // Desktop
+  // Desktop: when cursor gets close
   document.addEventListener("mousemove", (e) => {
     const r = noBtn.getBoundingClientRect();
     const dx = e.clientX - (r.left + r.width / 2);
-    const dy = e.clientY - (r.top  + r.height / 2);
-    if (Math.sqrt(dx*dx + dy*dy) < 100) moveNo();
+    const dy = e.clientY - (r.top + r.height / 2);
+
+    if (Math.sqrt(dx * dx + dy * dy) < 90) {
+      moveNo();
+    }
   });
 
-  document.getElementById("yes").onclick = () => {
+  // Yes always wins 😈
+  yesBtn.addEventListener("click", () => {
     window.location.href = "yay.html";
-  };
-
-  noBtn.onclick = (e) => {
-    e.preventDefault();
-    moveNo();
-  };
+  });
 </script>
 
 </body>
