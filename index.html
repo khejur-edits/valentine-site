@@ -20,17 +20,11 @@
 </div>
 
 <script>
-  const noBtn = document.getElementById("no");
+  const noBtn  = document.getElementById("no");
   const yesBtn = document.getElementById("yes");
-  const zone = document.getElementById("zone");
+  const zone   = document.getElementById("zone");
 
-  const sounds = [
-    "s1.mp4",
-    "s2.mp4",
-    "s3.mp4",
-    "s4.mp4",
-    "s5.mp4"
-  ];
+  const sounds = ["s1.mp4","s2.mp4","s3.mp4","s4.mp4","s5.mp4"];
 
   function playRandomSound() {
     const audio = new Audio(
@@ -45,26 +39,25 @@
     const yesRect  = yesBtn.getBoundingClientRect();
     const noRect   = noBtn.getBoundingClientRect();
 
-    let x, y;
-    let safe = false;
+    let x, y, safe = false;
 
     while (!safe) {
       x = Math.random() * (zoneRect.width  - noRect.width);
       y = Math.random() * (zoneRect.height - noRect.height);
 
-      const futureNo = {
+      const future = {
         left: zoneRect.left + x,
         right: zoneRect.left + x + noRect.width,
         top: zoneRect.top + y,
         bottom: zoneRect.top + y + noRect.height
       };
 
-      // Check overlap with YES
+      // avoid final position overlapping YES
       safe = !(
-        futureNo.right  > yesRect.left &&
-        futureNo.left   < yesRect.right &&
-        futureNo.bottom > yesRect.top &&
-        futureNo.top    < yesRect.bottom
+        future.right  > yesRect.left &&
+        future.left   < yesRect.right &&
+        future.bottom > yesRect.top &&
+        future.top    < yesRect.bottom
       );
     }
 
@@ -73,10 +66,8 @@
 
   function moveNo() {
     const pos = getSafePosition();
-
-    noBtn.classList.add("move");
-    noBtn.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
-
+    noBtn.style.left = pos.x + "px";
+    noBtn.style.top  = pos.y + "px";
     playRandomSound();
   }
 
