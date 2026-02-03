@@ -6,9 +6,7 @@
 <title>💖</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     height: 100vh;
@@ -39,7 +37,7 @@
   .buttons {
     position: relative;
     height: 140px;
-    overflow: hidden; /* button can NEVER escape */
+    overflow: hidden;
   }
 
   button {
@@ -75,7 +73,7 @@
 <body>
 
 <div class="card">
-  <h2>will you be my valentine</h2>
+  <h2>will you be my valentine🥺?</h2>
 
   <div class="buttons" id="zone">
     <button id="yes">Yes</button>
@@ -88,13 +86,17 @@
   const yesBtn = document.getElementById("yes");
   const zone   = document.getElementById("zone");
 
-  const sounds = ["s1.mp4","s2.mp4","s3.mp4","s4.mp4","s5.mp4"];
+  /* 🔊 PRELOAD SOUNDS (THIS IS THE FIX) */
+  const soundFiles = ["s1.mp4","s2.mp4","s3.mp4","s4.mp4","s5.mp4"];
+  const sounds = soundFiles.map(src => {
+    const a = new Audio(src);
+    a.preload = "auto";
+    return a;
+  });
 
   function playRandomSound() {
-    const audio = new Audio(
-      sounds[Math.floor(Math.random() * sounds.length)]
-    );
-    audio.volume = 0.8;
+    const audio = sounds[Math.floor(Math.random() * sounds.length)];
+    audio.currentTime = 0;   // instant restart
     audio.play();
   }
 
@@ -130,16 +132,16 @@
   function moveNo() {
     const pos = getSafePosition();
 
-    /* force snap animation every time */
+    // force snap animation every time
     noBtn.style.transition = "none";
-    noBtn.offsetHeight; // force reflow
+    noBtn.offsetHeight;
     noBtn.style.transition =
       "left 0.35s cubic-bezier(.25,1.4,.5,1), top 0.35s cubic-bezier(.25,1.4,.5,1)";
 
     noBtn.style.left = pos.x + "px";
     noBtn.style.top  = pos.y + "px";
 
-    playRandomSound();
+    playRandomSound(); // 🔥 now starts immediately
   }
 
   noBtn.addEventListener("pointerdown", (e) => {
