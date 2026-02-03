@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #ffd1e8, #fff0f7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    overflow: hidden;
+  }
+
+  .card {
+    background: white;
+    width: 90%;
+    max-width: 360px;
+    padding: 32px 20px;
+    border-radius: 22px;
+    text-align: center;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.15);
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 32px;
+    color: #333;
+  }
+
+  .buttons {
+    position: relative;
+    height: 90px;
+  }
+
+  button {
+    position: absolute;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 999px;
+    font-size: 16px;
+    transition: 0.15s ease;
+  }
+
+  #yes {
+    left: 40px;
+    background: #ff4f9a;
+    color: white;
+  }
+
+  #no {
+    right: 40px;
+    background: #e0e0e0;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>will you be my valentine</h2>
+
+  <div class="buttons">
+    <button id="yes">Yes</button>
+    <button id="no">No</button>
+  </div>
+</div>
+
+<script>
+  const noBtn = document.getElementById("no");
+  const container = document.querySelector(".buttons");
+
+  function moveNo() {
+    const maxX = container.clientWidth - noBtn.offsetWidth;
+    const maxY = container.clientHeight - noBtn.offsetHeight;
+
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top  = Math.random() * maxY + "px";
+  }
+
+  // Mobile
+  document.addEventListener("touchstart", moveNo);
+  document.addEventListener("touchmove", moveNo);
+
+  // Desktop
+  document.addEventListener("mousemove", (e) => {
+    const r = noBtn.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top  + r.height / 2);
+    if (Math.sqrt(dx*dx + dy*dy) < 100) moveNo();
+  });
+
+  document.getElementById("yes").onclick = () => {
+    window.location.href = "yay.html";
+  };
+
+  noBtn.onclick = (e) => {
+    e.preventDefault();
+    moveNo();
+  };
+</script>
+
+</body>
+</html>
