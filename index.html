@@ -86,7 +86,7 @@
   const yesBtn = document.getElementById("yes");
   const zone   = document.getElementById("zone");
 
-  /* 🔊 PRELOAD SOUNDS (THIS IS THE FIX) */
+  /* 🔊 preload sounds */
   const soundFiles = ["s1.mp4","s2.mp4","s3.mp4","s4.mp4","s5.mp4"];
   const sounds = soundFiles.map(src => {
     const a = new Audio(src);
@@ -96,7 +96,7 @@
 
   function playRandomSound() {
     const audio = sounds[Math.floor(Math.random() * sounds.length)];
-    audio.currentTime = 0;   // instant restart
+    audio.currentTime = 0;
     audio.play();
   }
 
@@ -132,21 +132,39 @@
   function moveNo() {
     const pos = getSafePosition();
 
-    // force snap animation every time
+    /* force snap animation every time */
     noBtn.style.transition = "none";
-    noBtn.offsetHeight;
+    noBtn.offsetHeight; // force reflow
     noBtn.style.transition =
       "left 0.35s cubic-bezier(.25,1.4,.5,1), top 0.35s cubic-bezier(.25,1.4,.5,1)";
 
     noBtn.style.left = pos.x + "px";
     noBtn.style.top  = pos.y + "px";
 
-    playRandomSound(); // 🔥 now starts immediately
+    playRandomSound();
   }
 
+  /* 📱 MOBILE: move only on tap */
   noBtn.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    moveNo();
+    if (e.pointerType !== "mouse") {
+      e.preventDefault();
+      moveNo();
+    }
+  });
+
+  /* 💻 PC: move when cursor comes near */
+  document.addEventListener("mousemove", (e) => {
+    // ignore touch devices
+    if ("ontouchstart" in window) return;
+
+    const rect = noBtn.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < 100) {
+      moveNo();
+    }
   });
 
   yesBtn.addEventListener("click", () => {
