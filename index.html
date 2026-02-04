@@ -48,10 +48,10 @@
     font-size: 16px;
     user-select: none;
     touch-action: manipulation;
+    white-space: nowrap;
     transition:
       left 0.35s cubic-bezier(.25,1.4,.5,1),
       top  0.35s cubic-bezier(.25,1.4,.5,1);
-    white-space: nowrap;
   }
 
   #yes {
@@ -92,8 +92,23 @@
   const sounds = soundFiles.map(src => {
     const a = new Audio(src);
     a.preload = "auto";
+    a.volume = 0.8;
     return a;
   });
+
+  let audioPrimed = false;
+
+  function primeAudio() {
+    if (audioPrimed) return;
+    sounds.forEach(a => {
+      a.currentTime = 0;
+      a.muted = true;
+      a.play().catch(()=>{});
+      a.pause();
+      a.muted = false;
+    });
+    audioPrimed = true;
+  }
 
   function playRandomSound() {
     const audio = sounds[Math.floor(Math.random() * sounds.length)];
@@ -103,21 +118,17 @@
 
   /* 📝 NO button text sequence */
   const noTexts = [
-    "really🥺?",
-    "think again😉",
-    "don't you love me😕?",
-    "sorry, not this time😈",
+    "really😕?",
+    "think again🥹",
+    "do't you love me🥺?",
+    "But i do😁",
     "No"
   ];
   let noCount = 0;
 
   function updateNoText() {
-    if (noCount < noTexts.length) {
-      noBtn.textContent = noTexts[noCount];
-      noCount++;
-    } else {
-      noBtn.textContent = "No";
-    }
+    noBtn.textContent = noTexts[Math.min(noCount, noTexts.length - 1)];
+    noCount++;
   }
 
   function getSafePosition() {
@@ -152,31 +163,34 @@
   function moveNo() {
     const pos = getSafePosition();
 
-    /* force snap animation */
+    // force animation reliably
     noBtn.style.transition = "none";
     noBtn.offsetHeight;
-    noBtn.style.transition =
-      "left 0.35s cubic-bezier(.25,1.4,.5,1), top 0.35s cubic-bezier(.25,1.4,.5,1)";
 
-    noBtn.style.left = pos.x + "px";
-    noBtn.style.top  = pos.y + "px";
+    requestAnimationFrame(() => {
+      noBtn.style.transition =
+        "left 0.35s cubic-bezier(.25,1.4,.5,1), top 0.35s cubic-bezier(.25,1.4,.5,1)";
+      noBtn.style.left = pos.x + "px";
+      noBtn.style.top  = pos.y + "px";
+    });
 
     updateNoText();
     playRandomSound();
   }
 
-  /* 📱 MOBILE: move on tap */
+  /* 📱 MOBILE: tap */
   noBtn.addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse") {
       e.preventDefault();
+      primeAudio();
       moveNo();
     }
   });
 
-  /* 💻 PC: move ONLY when cursor enters the NO button */
+  /* 💻 PC: move on ENTER only */
   noBtn.addEventListener("mouseenter", () => {
-    // ignore touch devices
     if ("ontouchstart" in window) return;
+    primeAudio();
     moveNo();
   });
 
