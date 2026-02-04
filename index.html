@@ -101,11 +101,11 @@
   function primeAudio() {
     if (audioPrimed) return;
     sounds.forEach(a => {
-      a.currentTime = 0;
       a.muted = true;
       a.play().catch(()=>{});
       a.pause();
       a.muted = false;
+      a.currentTime = 0;
     });
     audioPrimed = true;
   }
@@ -119,16 +119,26 @@
   /* 📝 NO button text sequence */
   const noTexts = [
     "really😕?",
-    "think again🥹",
-    "do't you love me🥺?",
-    "But i do😁",
+    "think again😉",
+    "don't you love me🥺?",
+    "But i do🥰",
     "No"
   ];
-  let noCount = 0;
+
+  const MAX_LOOPS = 2;
+  let escapeCount = 0;
 
   function updateNoText() {
-    noBtn.textContent = noTexts[Math.min(noCount, noTexts.length - 1)];
-    noCount++;
+    const totalSteps = noTexts.length * MAX_LOOPS;
+
+    if (escapeCount < totalSteps) {
+      const index = escapeCount % noTexts.length;
+      noBtn.textContent = noTexts[index];
+    } else {
+      noBtn.textContent = "No";
+    }
+
+    escapeCount++;
   }
 
   function getSafePosition() {
@@ -163,7 +173,6 @@
   function moveNo() {
     const pos = getSafePosition();
 
-    // force animation reliably
     noBtn.style.transition = "none";
     noBtn.offsetHeight;
 
@@ -187,7 +196,7 @@
     }
   });
 
-  /* 💻 PC: move on ENTER only */
+  /* 💻 PC: move on ENTER */
   noBtn.addEventListener("mouseenter", () => {
     if ("ontouchstart" in window) return;
     primeAudio();
